@@ -1,4 +1,6 @@
 ﻿#include "../Restuarant/MailSender.cpp"
+#include "gmock/gmock.h"
+#include "gtest/gtest.h"
 #include <iostream>
 
 using namespace std;
@@ -6,7 +8,8 @@ using namespace std;
 class TesttableEmailSender : public MailSender
 {
 public:
-	void sendMail(Schedule* schedule) override
+	MOCK_METHOD(void, sendMail, (Schedule*), (override));
+	/*void sendMail(Schedule* schedule) override
 	{
 		if (schedule == nullptr)
 		{
@@ -19,9 +22,9 @@ public:
 		cout << "HOUR " << schedule->getDateTime().tm_hour << endl;
 		cout << "MIN " << schedule->getDateTime().tm_min << endl;
 		sendEmMail = true;
-	}
-	bool isSendEmail() { return sendEmMail;  }
-
-private:
-	bool sendEmMail = false;
+	}*/
+//	bool isSendEmail() { return sendEmMail;  }
+//
+//private:
+//	bool sendEmMail = false;
 };
