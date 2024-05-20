@@ -11,6 +11,13 @@
 using namespace std;
 using namespace testing;
 
+class MockCustomer : public Customer
+{
+public:
+    MockCustomer() : Customer("MockCustomer", "MockNumber") {}
+    MOCK_METHOD(string, getEmail, (), (override));
+};
+
 class BookingSchedulerTest : public Test
 {
 public:
@@ -22,6 +29,11 @@ public:
 
         booking.setSmsSender(&smsSender);
         booking.setMailSender(&emailSender);
+
+        EXPECT_CALL(customer, getEmail())
+            .WillRepeatedly(Return(""));
+        EXPECT_CALL(customerWithEmail, getEmail())
+            .WillRepeatedly(Return("test@test.com"));
     }
 
     tm getTime(int year, int mon, int mday, int hour, int min)
@@ -38,8 +50,10 @@ public:
     TesttableSmsSender smsSender;
     TesttableEmailSender emailSender;
 
-    Customer customer{ "Fake Customer", "010-2323-3434" };
-    Customer customerWithEmail{"Fake Customer", "010-2323-3434", "email"};
+    /*Customer customer{ "Fake Customer", "010-2323-3434" };
+    Customer customerWithEmail{"Fake Customer", "010-2323-3434", "email"};*/
+    MockCustomer customer;
+    MockCustomer customerWithEmail;
 
     const int UNDER_CAPACITY_PER_HOUR = 1;
     const int CAPACITY_PER_HOUR = 3;
@@ -101,11 +115,9 @@ TEST_F(BookingSchedulerTest, 현재날짜가_일요일인_경우_예약불가_�
 }
 
 TEST_F(BookingSchedulerTest, 현재날짜가_일요일이_아닌경우_예약가능) {
-    tm stTmNotOnTheHour = getTime(2024, 5, 20, 9, 0);
-
     Schedule schedule(ON_THE_HOUR, UNDER_CAPACITY_PER_HOUR, customer);
 
-    TestTableBookingScheduler booking{ 1, stTmNotOnTheHour };
+    TestTableBookingScheduler booking{ 1, ON_THE_HOUR };
     booking.addSchedule(&schedule);
     EXPECT_THAT(booking.hasSchedule(&schedule), Eq(true));
 }
